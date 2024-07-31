@@ -1,0 +1,12 @@
+# 使用官方 Nginx 镜像作为基础镜像
+FROM nginx:latest
+
+# 设置工作目录
+WORKDIR /var/www/
+
+# 将 Nginx 配置文件复制到容器中
+COPY . /var/www/
+COPY nginx /etc/nginx/conf.d
+
+# 启动 Nginx
+CMD ["nginx", "-g", "daemon off;"]

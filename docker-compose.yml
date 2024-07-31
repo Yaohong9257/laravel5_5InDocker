@@ -1,0 +1,72 @@
+services:
+  # Nginx 服务
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: 'always'
+    privileged: true
+    ports:
+      - "80:80"
+      - "443:443"
+    working_dir: /var/www
+    volumes:
+      - "../:/var/www"
+      - "../nginx:/etc/nginx/conf.d"  # 将 nginx下的 *.conf 挂载到容器
+#      - "/etc/letsencrypt:/etc/letsencrypt"
+    environment:
+      TZ: "Asia/Shanghai"
+    depends_on:
+      - php7
+    networks:
+      - default
+
+  # PHP 7.4-fpm 服务
+  php7:
+    build:
+      context: .
+      dockerfile: Dockerfile_php # 使用自定义镜像
+    container_name: php7
+    restart: 'always'
+    privileged: true
+    expose:
+      - "9000"
+    working_dir: /var/www
+    volumes:
+      - "../:/var/www"
+    environment:
+      TZ: "Asia/Shanghai"
+    user: "1000:1000" # 指定用户和用户组为www, 1000是宿主机的UID和GID, root用户的UID和GID为0, 如果文件权限为root所有者, 则需要使用root用户启动容器
+    networks:
+      - default
+
+  # RabbitMQ 服务
+  rabbitmq:
+    build:
+      context: .
+      dockerfile: Dockerfile_rabbitmq # 使用自定义镜像
+    container_name: rabbitmq
+    restart: 'always'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      TZ: "Asia/Shanghai"
+    networks:
+      - default
+
+  # Certbot 服务, docker exec certbot certbot renew
+#  certbot:
+#    image: certbot/certbot
+#    container_name: certbot
+#    volumes:
+#      - "../:/var/www"
+#      - "/etc/letsencrypt:/etc/letsencrypt"
+#    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  default:
+    driver: bridge
+
+
+volumes:
+  nginx.conf:

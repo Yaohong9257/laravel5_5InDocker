@@ -1,0 +1,31 @@
+services:
+  push-middleware:
+    build:
+      context: .
+      dockerfile: ./Dockerfile_dev_solo
+    volumes:
+      - .:/app
+      - ./storage/nginxphp_logs/nginxlogs:/var/log/nginx
+      - ./storage/nginxphp_logs/phplogs:/var/log/php7
+    ports:
+      - '30001:80'
+    container_name: push_middleware
+    labels:
+      - role=container
+    # environment:
+      # dev mysql didn't work; 
+      # modify them in .env file
+      # - MYSQL_ADDRESS=192.168.0.107 
+      # - MYSQL_USERNAME=root
+      # - MYSQL_DATABASE=chongduoduo
+      # - MYSQL_PASSWORD=
+      # - MYSQL_PORT=3306
+      # dev redis
+      # - REDIS_HOST=127.0.0.1
+      # - REDIS_PORT=6379
+      # - REDIS_PASSWORD=
+    networks:
+      - wxcb0
+networks:
+  wxcb0:
+    external: true
